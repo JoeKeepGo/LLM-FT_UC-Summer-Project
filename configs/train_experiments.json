@@ -1,0 +1,41 @@
+{
+  "defaults": {
+    "output_dir_base": "{FINE_TUNED_MODEL_DIR}",
+    "global_batch": 64,
+    "seed": 42,
+    "torch_compile": false,
+    "tf32": true,
+    "max_grad_norm": 1.0,
+    "lr_scheduler_type": "cosine",
+    "warmup_ratio": 0.03,
+    "loss_method": "tail_weighted",
+    "tail_weight": 1.5,
+    "tail_portion": 0.3,
+    "logging_steps": 1,
+    "eval_strategy": "steps",
+    "eval_steps": 10,
+    "save_strategy": "steps",
+    "save_steps": 100,
+    "save_total_limit": 3,
+    "load_best_model_at_end": true,
+    "metric_for_best_model": "eval_loss",
+    "greater_is_better": false,
+    "gradient_checkpointing": true,
+    "dataloader_num_workers": 4
+  },
+  "experiments": [
+    {
+      "run_name": "Exp7_Final_LoRA_15k_LowLR",
+      "use_lora": true,
+      "dataset_size": null,
+      "learning_rate": 0.00005,
+      "lora_rank": 64,
+      "lora_alpha": 128,
+      "batch_size": 32,
+      "num_epochs": 3,
+      "warmup_ratio": 0.05,
+      "save_steps": 100,
+      "eval_steps": 50
+    }
+  ]
+}

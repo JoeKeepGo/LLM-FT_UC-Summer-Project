@@ -15,78 +15,11 @@ except ImportError as exc:
     print("Missing dependency: rich. Install with: pip install rich")
     raise SystemExit(1) from exc
 
-# 常量定义
-GLOBAL_BATCH = 64  # 【核心控制变量】所有实验严格对齐全局 Batch Size，确保 LR 可比性
-BASE_SEED = 42     # 固定随机种子，确保实验可复现
+from llm_ft.experiments import load_train_experiments
 
-# 自动计算梯度累积步数
-def auto_grad_accum(batch_size: int) -> int:
-    # Global Batch Size = 64。
-    # Accum_Steps = 64 / Batch_Size
-    return max(1, GLOBAL_BATCH // batch_size)
 
-# 基础配置
-COMMON = {
-    # 复现性与稳定性
-    "seed": BASE_SEED,
-    "torch_compile": False,        # 毕设建议关闭，避免动态图编译带来的额外排错成本
-    "tf32": True,                  # 开启 TensorFloat-32 (Ampere架构加速)
-    "max_grad_norm": 1.0,          # 梯度裁剪，防止梯度爆炸
-
-    # 学习率调度
-    "lr_scheduler_type": "cosine", # 余弦退火：前期学习快，后期微调精细
-    "warmup_ratio": 0.03,          # 默认预热比例 (LoRA 实验中会覆盖此值)
-
-    # Loss 策略
-    "loss_method": "tail_weighted", # 针对 CoT (思维链) 优化的加权 Loss
-    "tail_weight": 1.5,
-    "tail_portion": 0.30,
-
-    # 评估与日志
-    "logging_steps": 1,           # 高频日志，方便画 WandB 曲线
-    "eval_strategy": "steps",
-    "eval_steps": 10,              # 每 50 步测一次 Validation Loss
-    "save_strategy": "steps",
-    "save_steps": 100,
-    "save_total_limit": 3,         # 最多存3个档，节省硬盘
-    "load_best_model_at_end": True,
-    "metric_for_best_model": "eval_loss",
-    "greater_is_better": False,    # Loss 越小越好
-
-    # 运行效率
-    "gradient_checkpointing": True,# 显存优化技术
-    "dataloader_num_workers": 4,   # 数据加载进程数
-    
-    # 精度
-    # "bf16": True,                # A100/A800/4090 建议开启
-    # "fp16": False,
-}
-
-# 实验组菜单
-experiments = [
-    # ==========================================================
-    # Exp7: Final Production (15k 全量生产 - 修正版)
-    # 依据: 
-    #   1. Exp1/2 证明 FFT 高 LR 必死 (F1 0.00)，必须放弃 FFT 或用极低 LR。
-    #   2. Exp3 证明 LoRA 有效 (F1 0.65)，但 Exp4 证明 3e-4 太大。
-    #   3. 只有 "低 LR (5e-5) + 增加轮数" 才能在保护逻辑的同时优化格式。
-    # ==========================================================
-    dict(COMMON, **{
-        "run_name": "Exp7_Final_LoRA_15k_LowLR",
-        "use_lora": True,              # FFT 风险太大
-        "dataset_size": None,          # 全量
-        "learning_rate": 5e-5,         # 比 Exp3(1e-4) 还要低，为了稳住格式
-        "lora_rank": 64,               # Exp6 证明 256 没用，回到 64
-        "lora_alpha": 128,
-        "batch_size": 32,
-        "grad_accumulation": auto_grad_accum(32),
-        # 低 LR 需要更多步数来收敛。
-        "num_epochs": 3,               
-        "warmup_ratio": 0.05,          # Exp5 证明 Warmup 必须要有
-        "save_steps": 100,             
-        "eval_steps": 50,
-    }),
-]
+TRAIN_EXPERIMENT_CONFIG = os.environ.get("LLM_FT_TRAIN_EXPERIMENT_CONFIG", "configs/train_experiments.json")
+COMMON, experiments = load_train_experiments(TRAIN_EXPERIMENT_CONFIG)
 
 # 控制器逻辑
 LOG_BUFFER_LINES = 200

@@ -20,12 +20,28 @@ from trl import SFTTrainer, SFTConfig
 from transformers import TrainingArguments
 from transformers.trainer_callback import TrainerCallback
 
+from llm_ft.config import (
+    BASE_DIR as CONFIG_BASE_DIR,
+    FINE_TUNED_MODEL_DIR,
+    MODEL_ID as CONFIG_MODEL_ID,
+    TEST_FILE,
+    TRAIN_FILE,
+    WANDB_API_KEY,
+    WANDB_ENTITY as CONFIG_WANDB_ENTITY,
+    WANDB_PROJECT as CONFIG_WANDB_PROJECT,
+    run_output_dir,
+)
+
 # ==================== 1. 命令行参数解析 (ArgParse) ====================
 parser = argparse.ArgumentParser(description="Unsloth Fine-Tuning Worker Script")
 
 # [基础配置]
 parser.add_argument("--run_name", type=str, required=True, help="Unique name for this run (used for WandB and Output Dir)")
-parser.add_argument("--output_dir_base", type=str, default="/home/data601/project/fine_tuned_model", help="Base directory for saving models")
+parser.add_argument("--base_dir", type=str, default=CONFIG_BASE_DIR, help="Project base directory")
+parser.add_argument("--model_id", type=str, default=CONFIG_MODEL_ID, help="Base model id or local model path")
+parser.add_argument("--data_path", type=str, default=TRAIN_FILE, help="Training JSONL path")
+parser.add_argument("--test_data_path", type=str, default=TEST_FILE, help="External test JSONL path")
+parser.add_argument("--output_dir_base", type=str, default=FINE_TUNED_MODEL_DIR, help="Base directory for saving models")
 parser.add_argument("--dataset_size", type=int, default=None, help="Number of samples to use (None for all)")
 parser.add_argument("--seed", type=int, default=3407, help="Random seed")
 parser.add_argument("--torch_compile", action="store_true", help="Enable torch.compile")
@@ -104,7 +120,7 @@ def _parse_optional_bool(value, name):
 
 # 清理缓存路径
 cache_paths = [
-    "/root/autodl-tmp/home/data601/project/unsloth_compiled_cache",
+    os.environ.get("UNSLOTH_COMPILED_CACHE", os.path.join(CONFIG_BASE_DIR, "unsloth_compiled_cache")),
     os.path.expanduser("~/.cache/unsloth"),
 ]
 for p in cache_paths:
@@ -119,22 +135,22 @@ if args.tf32 is not None:
     torch.backends.cudnn.allow_tf32 = args.tf32
 
 # WandB 配置
-WANDB_PROJECT = "DATA601"
-WANDB_ENTITY = "joeyang97"
+WANDB_PROJECT = CONFIG_WANDB_PROJECT
+WANDB_ENTITY = CONFIG_WANDB_ENTITY
 WANDB_RUN_NAME = args.run_name  # 动态获取
 
 def _default_wandb_run_id(run_name: str) -> str:
     return hashlib.sha1(run_name.encode("utf-8")).hexdigest()[:8]
 
 WANDB_RUN_ID = os.environ.get("WANDB_RUN_ID") or _default_wandb_run_id(WANDB_RUN_NAME)
-WANDB_KEY = "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"
+WANDB_KEY = WANDB_API_KEY
 
 # 路径与模型
-BASE_DIR = "/home/data601/project"
-MODEL_ID = "Qwen/Qwen3-4B-Instruct-2507" 
-DATA_PATH = os.path.join(BASE_DIR, "dataset/train/train.jsonl")
-TEST_DATA_PATH = os.path.join(BASE_DIR, "dataset/test/test.jsonl")
-OUTPUT_DIR = os.path.join(args.output_dir_base, args.run_name) # 动态路径
+BASE_DIR = args.base_dir
+MODEL_ID = args.model_id
+DATA_PATH = args.data_path
+TEST_DATA_PATH = args.test_data_path
+OUTPUT_DIR = str(run_output_dir(args.output_dir_base, args.run_name))
 
 # 动态参数映射
 DTYPE = None 
@@ -361,10 +377,13 @@ def train():
     os.environ.setdefault("WANDB_RUN_ID", WANDB_RUN_ID)
     os.environ.setdefault("WANDB_RESUME", "allow")
     
-    try:
-        wandb.login(key=WANDB_KEY)
-    except Exception as e:
-        logger.warning(f"WandB login warning: {e}")
+    if WANDB_KEY:
+        try:
+            wandb.login(key=WANDB_KEY)
+        except Exception as e:
+            logger.warning(f"WandB login warning: {e}")
+    else:
+        logger.warning("WANDB_API_KEY not set; relying on existing W&B login or offline configuration.")
     try:
         if wandb.run is None:
             wandb.init(project=WANDB_PROJECT, entity=WANDB_ENTITY, name=WANDB_RUN_NAME, id=WANDB_RUN_ID, resume="allow")

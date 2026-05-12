@@ -3,16 +3,27 @@ import json
 import re
 import os
 import argparse
+import sys
+from pathlib import Path
 from tqdm import tqdm
 from sklearn.metrics import f1_score, accuracy_score
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import (
+    BASELINE_RESULTS_DIR,
+    DATASET_SPLIT_TEST_FILE,
+    DATASET_SPLIT_TRAIN_FILE,
+    HF_TOKEN,
+    MODEL_ID as CONFIG_MODEL_ID,
+)
 
 # ================= 配置区域 =================
 
 #MODEL_ID = "google/gemma-3-12b-it"
 #MODEL_ALIAS = "Gemma-3-12B"
 
-MODEL_ID = "Qwen/Qwen3-4B-Instruct-2507"
+MODEL_ID = CONFIG_MODEL_ID
 MODEL_ALIAS = "Qwen-3-4B"
 
 #MODEL_ID = "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
@@ -20,10 +31,9 @@ MODEL_ALIAS = "Qwen-3-4B"
 
 
 # 路径配置
-BASE_DIR = "/home/data601/project"
-TRAIN_FILE = os.path.join(BASE_DIR, "dataset_split/train.jsonl")
-TEST_FILE = os.path.join(BASE_DIR, "dataset_split/test.jsonl")
-OUTPUT_DIR = os.path.join(BASE_DIR, "baseline_results")
+TRAIN_FILE = DATASET_SPLIT_TRAIN_FILE
+TEST_FILE = DATASET_SPLIT_TEST_FILE
+OUTPUT_DIR = BASELINE_RESULTS_DIR
 
 # JSON 定义
 SCHEMA_DEFINITION = """
@@ -39,8 +49,6 @@ You are a content moderation expert. Analyze the comment and output a JSON objec
 def load_model(model_name):
     print(f"Loading model: {model_name} in 8-bit.")
     
-    HF_TOKEN = os.getenv("HF_TOKEN")
-
     import gc
     gc.collect()
     torch.cuda.empty_cache()

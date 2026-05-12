@@ -9,15 +9,26 @@ from datasets import load_dataset
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from llm_ft.config import (
+    BASE_DIR,
+    DATASET_SPLIT_TEST_FILE,
+    DEEPSEEK_API_BASE_URL,
+    DEEPSEEK_API_KEY,
+    HF_TOKEN,
+    MODEL_ID,
+    SYNTHETIC_FINAL_FILE,
+    TEACHER_API_MODEL,
+)
+
 # 全局配置开关
 # True: 使用 DeepSeek API (并发)
 # False: 使用本地模型 (单线程)
 USE_API = True
 
 # API 配置
-API_KEY = os.getenv("API_KEY")
-API_BASE_URL = "https://api.deepseek.com"
-API_MODEL_NAME = "deepseek-reasoner"
+API_KEY = DEEPSEEK_API_KEY
+API_BASE_URL = DEEPSEEK_API_BASE_URL
+API_MODEL_NAME = TEACHER_API_MODEL
 # 并发线程数设置为 100 以最大化处理速度
 API_MAX_WORKERS = 100
 
@@ -27,15 +38,13 @@ API_MAX_WORKERS = 100
 MAX_BATCH_SIZE_LIMIT = 1000
 
 # 本地模型配置
-LOCAL_MODEL_ID = "Qwen/Qwen3-4B-Instruct-2507"
-HF_TOKEN = os.getenv("HF_TOKEN")
+LOCAL_MODEL_ID = MODEL_ID
 
 # 文件路径配置
-BASE_DIR = "/home/data601/project"
 # 黄金数据集路径，用于提取 Few-Shot 示例
-GOLDEN_DATASET_PATH = os.path.join(BASE_DIR, "dataset_split/test.jsonl")
+GOLDEN_DATASET_PATH = DATASET_SPLIT_TEST_FILE
 # 最终输出文件路径，实时写入
-OUTPUT_FILE = os.path.join(BASE_DIR, "constructed_dataset/synthetic_train_final.jsonl")
+OUTPUT_FILE = SYNTHETIC_FINAL_FILE
 
 # 任务目标参数
 TARGET_HARMFUL_MIN = 10000  # 目标收集的有害样本数量

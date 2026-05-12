@@ -1,0 +1,12 @@
+# Local planning and agent memory
+/plan.md
+/memory.md
+
+# Local secrets
+/.env
+/.env.local
+/.env.*.local
+
+# Python cache
+__pycache__/
+*.py[cod]

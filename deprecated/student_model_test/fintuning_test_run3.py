@@ -5,6 +5,8 @@ import gc
 import random
 import re
 import numpy as np
+import sys
+from pathlib import Path
 from tqdm import tqdm
 from sklearn.metrics import f1_score, accuracy_score, classification_report
 from transformers import (
@@ -17,6 +19,14 @@ from trl import SFTTrainer, SFTConfig
 from peft import LoraConfig, get_peft_model, PeftModel
 from datasets import Dataset
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import (
+    DATASET_SPLIT_TEST_FILE,
+    DATASET_SPLIT_TRAIN_FILE,
+    FINETUNING_TEST_RESULTS_DIR,
+    HF_TOKEN,
+)
+
 # 1. 全局配置
 
 CANDIDATE_MODELS = [
@@ -25,11 +35,9 @@ CANDIDATE_MODELS = [
     {"id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B", "alias": "DeepSeek-R1-8B"}
 ]
 
-HF_TOKEN = os.getenv("HF_TOKEN")
-BASE_DIR = "/home/data601/project"
-TRAIN_FILE = os.path.join(BASE_DIR, "dataset_split/train.jsonl")
-TEST_FILE = os.path.join(BASE_DIR, "dataset_split/test.jsonl")
-OUTPUT_DIR = os.path.join(BASE_DIR, "finetuning_test_results_3")
+TRAIN_FILE = DATASET_SPLIT_TRAIN_FILE
+TEST_FILE = DATASET_SPLIT_TEST_FILE
+OUTPUT_DIR = FINETUNING_TEST_RESULTS_DIR
 
 # 关键参数
 MAX_STEPS = 60

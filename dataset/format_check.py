@@ -1,7 +1,12 @@
 import json
 import re
+import sys
+from pathlib import Path
 
-INPUT_FILE = "/home/data601/project/dataset/tmp/synthetic_train_final_v7prompt.jsonl"  # 文件路径
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import SYNTHETIC_V7_FILE
+
+INPUT_FILE = SYNTHETIC_V7_FILE  # 文件路径
 
 def check_data_health():
     total = 0

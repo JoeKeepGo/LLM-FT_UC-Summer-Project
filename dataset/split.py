@@ -2,9 +2,13 @@ import json
 import os
 import random
 import sys
+from pathlib import Path
 
-INPUT_FILE = "/home/data601/project/dataset/tmp/obsolete_files/gold_standard.json" 
-OUTPUT_DIR = "/home/data601/project/dataset/tmp/dataset_split"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import DATASET_TMP_SPLIT_DIR, OBSOLETE_GOLD_STANDARD_FILE
+
+INPUT_FILE = OBSOLETE_GOLD_STANDARD_FILE
+OUTPUT_DIR = DATASET_TMP_SPLIT_DIR
 TRAIN_SIZE = 400
 
 def load_tricky_json(file_path):

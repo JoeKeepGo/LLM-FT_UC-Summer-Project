@@ -16,25 +16,27 @@ from transformers import (
 )
 from peft import PeftModel
 
+from llm_ft.config import EVAL_RESULTS_DIR, FINE_TUNED_MODEL_DIR, MODEL_ID, TEST_FILE, run_output_dir
+
 # 默认配置 (可被命令行参数覆盖)
 
 # "base" (纯基座), "lora" (基座+Adapter), "fft" (全量微调权重)
 DEFAULT_MODE = "lora" 
 
 # 基座模型路径
-DEFAULT_BASE_MODEL_PATH = "Qwen/Qwen3-4B-Instruct-2507"
+DEFAULT_BASE_MODEL_PATH = MODEL_ID
 
 # 检查点路径
 # lora 填 Adapter 文件夹路径
 # fft 填全量微调权重的文件夹
 # base 可忽略
-DEFAULT_CHECKPOINT_PATH = "/home/data601/project/fine_tuned_model/lora_run_v1"
+DEFAULT_CHECKPOINT_PATH = str(run_output_dir(FINE_TUNED_MODEL_DIR, "lora_run_v1"))
 
 # 测试集文件路径 
-DEFAULT_TEST_FILE = "/home/data601/project/dataset/test/test.jsonl"
+DEFAULT_TEST_FILE = TEST_FILE
 
 # 结果输出目录
-DEFAULT_OUTPUT_DIR = "eval_results"
+DEFAULT_OUTPUT_DIR = EVAL_RESULTS_DIR
 
 # 评测数量控制
 # None: 评测所有数据

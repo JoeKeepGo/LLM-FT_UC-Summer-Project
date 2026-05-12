@@ -1,0 +1,61 @@
+{
+  "defaults": {
+    "train_file": "{DATASET_SPLIT_TRAIN_FILE}",
+    "test_file": "{DATASET_SPLIT_TEST_FILE}",
+    "few_shot_count": 3,
+    "max_new_tokens": 512,
+    "temperature": 0.1,
+    "do_sample": true,
+    "load_in_8bit": true,
+    "load_in_4bit": false,
+    "seed_base": 42,
+    "num_runs": 1,
+    "eval_batch_size": 8,
+    "max_seq_length": 2048,
+    "train_batch_size": 1,
+    "grad_accumulation": 8,
+    "learning_rate": 0.0002,
+    "max_steps": 60,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05
+  },
+  "experiments": [
+    {
+      "run_name": "baseline_qwen_3_4b",
+      "mode": "baseline",
+      "model_id": "{MODEL_ID}",
+      "model_alias": "Qwen-3-4B",
+      "output_dir": "{BASELINE_RESULTS_DIR}"
+    },
+    {
+      "run_name": "baseline_deepseek_r1_8b_5run",
+      "mode": "baseline_repeated",
+      "model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "model_alias": "DeepSeek-R1-8B",
+      "num_runs": 5,
+      "output_dir": "{BASELINE_RESULTS_DIR}"
+    },
+    {
+      "run_name": "finetune_qwen_3_4b",
+      "mode": "finetune_lora",
+      "model_id": "{MODEL_ID}",
+      "model_alias": "Qwen-3-4B",
+      "output_dir": "{FINETUNING_TEST_RESULTS_DIR}"
+    },
+    {
+      "run_name": "finetune_gemma_3_12b",
+      "mode": "finetune_lora",
+      "model_id": "google/gemma-3-12b-it",
+      "model_alias": "Gemma-3-12B",
+      "output_dir": "{FINETUNING_TEST_RESULTS_DIR}"
+    },
+    {
+      "run_name": "finetune_deepseek_r1_8b",
+      "mode": "finetune_lora",
+      "model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+      "model_alias": "DeepSeek-R1-8B",
+      "output_dir": "{FINETUNING_TEST_RESULTS_DIR}"
+    }
+  ]
+}

@@ -17,43 +17,20 @@ except ImportError as exc:
     print("Missing dependency: rich. Install with: pip install rich")
     raise SystemExit(1) from exc
 
+from llm_ft.experiments import load_eval_config
+
 # ==================== Config ====================
 
-COMMON = {
-    "base_model_path": "Qwen/Qwen3-4B-Instruct-2507",
-    "test_file": "/home/data601/project/dataset/test/test.jsonl",
-    "output_dir": "/home/data601/project/eval_results",
-    "num_samples": 500,
-    "sample_strategy": "random",
-    "batch_size": 64,
-    "max_seq_length": 2048 ,
-    "max_new_tokens": 1400,
-    "load_in_4bit": False,
-    "seed": 42,
-    "stop_on_json": True,
-}
-
-MODEL_ROOT = "/home/data601/project/fine_tuned_model"
-
-AUTO_DISCOVER = False
-MODEL_ROOTS = [
-    MODEL_ROOT,
-]
-INCLUDE_BASE_MODEL = False
-INCLUDE_REGEX = None
-EXCLUDE_REGEX = None
-SKIP_EXISTING = True
-
-MANUAL_EXPERIMENTS = [
-    dict(
-        COMMON,
-        **{
-            "run_name": "Exp7_Final_LoRA_15k_LowLR",
-            "mode": "lora",
-            "checkpoint_path": os.path.join(MODEL_ROOT, "Exp7_Final_LoRA_15k_LowLR"),
-        },
-    ),
-]
+EVAL_EXPERIMENT_CONFIG = os.environ.get("LLM_FT_EVAL_EXPERIMENT_CONFIG", "configs/eval_experiments.json")
+CONFIG = load_eval_config(EVAL_EXPERIMENT_CONFIG)
+COMMON = CONFIG["common"]
+AUTO_DISCOVER = CONFIG["auto_discover"]
+MODEL_ROOTS = CONFIG["model_roots"]
+INCLUDE_BASE_MODEL = CONFIG["include_base_model"]
+INCLUDE_REGEX = CONFIG["include_regex"]
+EXCLUDE_REGEX = CONFIG["exclude_regex"]
+SKIP_EXISTING = CONFIG["skip_existing"]
+CONFIGURED_EXPERIMENTS = CONFIG["experiments"]
 
 LOG_BUFFER_LINES = 200
 
@@ -146,7 +123,7 @@ def build_experiments():
         )
         experiments.append(exp)
 
-    experiments.extend(MANUAL_EXPERIMENTS)
+    experiments.extend(CONFIGURED_EXPERIMENTS)
     experiments.sort(key=lambda x: x.get("run_name", ""))
     return experiments
 
@@ -272,7 +249,7 @@ def run_evaluations():
 
     experiments = build_experiments()
     if not experiments:
-        console.print("[red]No evaluations found. Check MODEL_ROOTS or MANUAL_EXPERIMENTS.[/red]")
+        console.print("[red]No evaluations found. Check the eval experiment JSON config.[/red]")
         return
 
     header = HeaderView()

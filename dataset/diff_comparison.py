@@ -1,9 +1,14 @@
 import json
 import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import GOLD_STANDARD_FILE
 
 # 配置路径
-FILE_A_PATH = "/home/data601/project/gold_standard.json"  # 文件 A
-FILE_B_PATH = "/home/data601/project/obsolete_files/Combined.json" # 文件 B (处理后的)
+FILE_A_PATH = GOLD_STANDARD_FILE  # 文件 A
+FILE_B_PATH = os.getenv("LLM_FT_DIFF_FILE_B", os.path.join(os.path.dirname(GOLD_STANDARD_FILE), "obsolete_files", "Combined.json")) # 文件 B (处理后的)
 FIELD_NAME = "original_comment" # 要对比的字段名
 
 def load_data_robust(file_path):

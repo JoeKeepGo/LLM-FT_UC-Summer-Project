@@ -2,18 +2,25 @@ import json
 import os
 import random
 import re # 把正则库放在最上面
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import (
+    SYNTHETIC_V8_FILE,
+    TMP_TRAIN_REANNOTATED_FILE,
+    TRAIN_QUALITY_HYBRID_COT_FILE,
+)
 
 # ================= 配置路径 =================
-BASE_DIR = "/home/data601/project"
-
 # 1. 输入：新数据 (V8 Prompt)
-SYNTHETIC_FILE = os.path.join(BASE_DIR, "dataset/tmp/synthetic_train_final_v8prompt.jsonl")
+SYNTHETIC_FILE = SYNTHETIC_V8_FILE
 
 # 2. 输入：黄金数据集
-GOLDEN_FILE = os.path.join(BASE_DIR, "dataset/tmp/dataset_split/train_reannotated.jsonl")
+GOLDEN_FILE = TMP_TRAIN_REANNOTATED_FILE
 
 # 3. 输出
-OUTPUT_FILE = os.path.join(BASE_DIR, "dataset/train/train_quality_hybrid_cot.jsonl")
+OUTPUT_FILE = TRAIN_QUALITY_HYBRID_COT_FILE
 
 # 超采样倍数
 # 0 = 不额外复制 (只保留原始的1份黄金数据)

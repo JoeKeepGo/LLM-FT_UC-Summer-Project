@@ -5,22 +5,33 @@ import random
 import time
 import threading
 import textwrap
+import sys
+from pathlib import Path
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import (
+    DEEPSEEK_API_BASE_URL,
+    DEEPSEEK_API_KEY,
+    REPROCESS_API_MODEL,
+    SYNTHETIC_FINAL_TMP_FILE,
+    SYNTHETIC_V8_FILE,
+    TMP_TEST_REANNOTATED_FILE,
+)
 
 # 这个程序用于重新生成完整的20K数据集 Reasoning 字段
 # API 配置
 USE_API = True
-API_KEY = os.getenv("API_KEY")
-API_BASE_URL = "https://api.deepseek.com"
-API_MODEL_NAME = "deepseek-chat"
+API_KEY = DEEPSEEK_API_KEY
+API_BASE_URL = DEEPSEEK_API_BASE_URL
+API_MODEL_NAME = REPROCESS_API_MODEL
 API_MAX_WORKERS = 200
 
 # 文件路径配置
-BASE_DIR = "/home/data601/project"
-INPUT_FILE = "dataset/tmp/synthetic_train_final.jsonl"
-OUTPUT_FILE = "dataset/tmp/synthetic_train_final_v8prompt.jsonl"
-GOLDEN_DATASET_PATH = os.path.join(BASE_DIR, "dataset/tmp/dataset_split/test_reannotated.jsonl")
+INPUT_FILE = SYNTHETIC_FINAL_TMP_FILE
+OUTPUT_FILE = SYNTHETIC_V8_FILE
+GOLDEN_DATASET_PATH = TMP_TEST_REANNOTATED_FILE
 
 # 参数
 MAX_RETRIES = 1

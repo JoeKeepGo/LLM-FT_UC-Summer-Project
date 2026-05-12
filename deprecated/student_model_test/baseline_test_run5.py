@@ -4,9 +4,19 @@ import re
 import os
 import random
 import numpy as np
+import sys
+from pathlib import Path
 from tqdm import tqdm
 from sklearn.metrics import f1_score, accuracy_score, classification_report
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import (
+    BASELINE_RESULTS_DIR,
+    DATASET_SPLIT_TEST_FILE,
+    DATASET_SPLIT_TRAIN_FILE,
+    HF_TOKEN,
+)
 
 # 全局配置
 
@@ -22,17 +32,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 MODEL_ID = "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
 MODEL_ALIAS = "DeepSeek-R1-8B"
 
-HF_TOKEN = os.getenv("HF_TOKEN")
-
 # 实验参数
 NUM_RUNS = 5      # 运行次数
 SEED_BASE = 42    # 随机种子基数
 
 # 路径配置
-BASE_DIR = "/home/data601/project"
-TRAIN_FILE = os.path.join(BASE_DIR, "dataset_split/train.jsonl")
-TEST_FILE = os.path.join(BASE_DIR, "dataset_split/test.jsonl")
-OUTPUT_DIR = os.path.join(BASE_DIR, "baseline_results")
+TRAIN_FILE = DATASET_SPLIT_TRAIN_FILE
+TEST_FILE = DATASET_SPLIT_TEST_FILE
+OUTPUT_DIR = BASELINE_RESULTS_DIR
 
 # Schema
 SCHEMA_DEFINITION = """

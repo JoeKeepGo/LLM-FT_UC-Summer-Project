@@ -1,16 +1,23 @@
 import json
 import os
 import random
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from llm_ft.config import (
+    SYNTHETIC_V7_FILE,
+    TMP_TRAIN_REANNOTATED_FILE,
+    TRAIN_QUALITY_HYBRID_FILE,
+)
 
 # 配置路径
-BASE_DIR = "/home/data601/project"
-
 # 合成数据输入 (Quantity)
-SYNTHETIC_FILE = os.path.join(BASE_DIR, "dataset/tmp/synthetic_train_final_v7prompt.jsonl")
+SYNTHETIC_FILE = SYNTHETIC_V7_FILE
 # 黄金数据输入 (Quality)
-GOLDEN_FILE = os.path.join(BASE_DIR, "dataset/tmp/dataset_split/train_reannotated.jsonl")
+GOLDEN_FILE = TMP_TRAIN_REANNOTATED_FILE
 # 输出路径 (生成的新混合格式数据集)
-OUTPUT_FILE = os.path.join(BASE_DIR, "dataset/train/train_quality_hybrid.jsonl")
+OUTPUT_FILE = TRAIN_QUALITY_HYBRID_FILE
 
 # 超采样倍数 (黄金数据去重后，建议设为 0 或 1，不要太高，因为我们混合了合成数据)
 OVERSAMPLE_RATIO = 0 

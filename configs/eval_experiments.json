@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "base_model_path": "{MODEL_ID}",
+    "test_file": "{TEST_FILE}",
+    "output_dir": "{EVAL_RESULTS_DIR}",
+    "num_samples": 500,
+    "sample_strategy": "random",
+    "batch_size": 64,
+    "max_seq_length": 2048,
+    "max_new_tokens": 1400,
+    "load_in_4bit": false,
+    "seed": 42,
+    "stop_on_json": true
+  },
+  "auto_discover": false,
+  "model_roots": [
+    "{FINE_TUNED_MODEL_DIR}"
+  ],
+  "include_base_model": false,
+  "include_regex": null,
+  "exclude_regex": null,
+  "skip_existing": true,
+  "experiments": [
+    {
+      "run_name": "Exp7_Final_LoRA_15k_LowLR",
+      "mode": "lora",
+      "checkpoint_run_name": "Exp7_Final_LoRA_15k_LowLR"
+    }
+  ]
+}
